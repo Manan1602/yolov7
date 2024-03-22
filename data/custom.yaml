@@ -1,0 +1,7 @@
+
+train: /home/kapil/Manan/Compressed/images/train
+val: /home/kapil/Manan/Compressed/images/val
+test: /home/kapil/Manan/Compressed/images/val
+
+nc: 4
+names: ['swimmer','swimmer_life_jacket','boat','life_jacket']
