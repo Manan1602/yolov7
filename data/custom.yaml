@@ -1,4 +1,3 @@
-
 train: /home/kapil/Manan/Compressed/images/train
 val: /home/kapil/Manan/Compressed/images/val
 test: /home/kapil/Manan/Compressed/images/val
