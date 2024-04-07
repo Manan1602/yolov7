@@ -151,17 +151,17 @@ head:
    [-1, 1, Conv, [512, 1, 1]], # 107
    
    #Mightt have to remove Rep
-   [77, 1, RepConv, [256, 3, 1]],
-   [-1, 1, SwinTransformerBlock3D, [256, 5]],
-   [-1, 1, Conv, [256, 1, 1]], #110
+  #  [77, 1, RepConv, [256, 3, 1]],
+   [77, 1, SwinTransformerBlock3D, [128, 5]],
+   [-1, 1, Conv, [128, 1, 1]], #109
 
-   [92, 1, RepConv, [512, 3, 1]],
-   [-1, 1, SwinTransformerBlock3D, [512, 5]],
-   [-1, 1, Conv, [512, 5]], #113
+  #  [92, 1, RepConv, [512, 3, 1]],
+   [92, 1, SwinTransformerBlock3D, [256, 5]],
+   [-1, 1, Conv, [256, 5]], #111
 
-   [107, 1, RepConv, [1024, 3, 1]],
-   [-1, 1, SwinTransformerBlock3D, [1024, 5]],
-   [-1, 1, Conv, [1024, 1, 1]], #116
+  #  [107, 1, RepConv, [1024, 3, 1]],
+   [107, 1, SwinTransformerBlock3D, [512, 5]],
+   [-1, 1, Conv, [512, 1, 1]], #113
 
-   [[110,113,116], 1, IDetect, [nc, anchors]],   # Detect(P3, P4, P5)
+   [[109,111,113], 1, IDetect, [nc, anchors]],   # Detect(P3, P4, P5)
   ]

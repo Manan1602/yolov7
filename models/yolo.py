@@ -14,6 +14,8 @@ from utils.torch_utils import time_synchronized, fuse_conv_and_bn, model_info, s
     select_device, copy_attr
 from utils.loss import SigmoidBin
 
+from models.swin_3d import SwinTransformerBlock3D
+
 try:
     import thop  # for FLOPS computation
 except ImportError:
@@ -506,7 +508,7 @@ class IBin(nn.Module):
 
 
 class Model(nn.Module):
-    def __init__(self, cfg='yolor-csp-c.yaml', ch=3, nc=None, anchors=None):  # model, input channels, number of classes
+    def __init__(self, cfg='yolor-csp-c.yaml', ch=3, nc=None, anchors=None, num_frames = 5):  # model, input channels, number of classes
         super(Model, self).__init__()
         self.traced = False
         if isinstance(cfg, dict):
@@ -533,7 +535,7 @@ class Model(nn.Module):
         m = self.model[-1]  # Detect()
         if isinstance(m, Detect):
             s = 256  # 2x min stride
-            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1, ch, s, s))])  # forward
+            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1*num_frames, ch, s, s))])  # forward
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
@@ -541,7 +543,7 @@ class Model(nn.Module):
             # print('Strides: %s' % m.stride.tolist())
         if isinstance(m, IDetect):
             s = 256  # 2x min stride
-            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1, ch, s, s))])  # forward
+            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1*num_frames, ch, s, s))])  # forward
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
@@ -549,7 +551,7 @@ class Model(nn.Module):
             # print('Strides: %s' % m.stride.tolist())
         if isinstance(m, IAuxDetect):
             s = 256  # 2x min stride
-            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1, ch, s, s))[:4]])  # forward
+            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1*num_frames, ch, s, s))[:4]])  # forward
             #print(m.stride)
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
@@ -558,7 +560,7 @@ class Model(nn.Module):
             # print('Strides: %s' % m.stride.tolist())
         if isinstance(m, IBin):
             s = 256  # 2x min stride
-            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1, ch, s, s))])  # forward
+            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1*num_frames, ch, s, s))])  # forward
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
@@ -566,7 +568,7 @@ class Model(nn.Module):
             # print('Strides: %s' % m.stride.tolist())
         if isinstance(m, IKeypoint):
             s = 256  # 2x min stride
-            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1, ch, s, s))])  # forward
+            m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1*num_frames, ch, s, s))])  # forward
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
@@ -799,7 +801,6 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
             c2 = ch[f] // args[0] ** 2
         else:
             c2 = ch[f]
-
         m_ = nn.Sequential(*[m(*args) for _ in range(n)]) if n > 1 else m(*args)  # module
         t = str(m)[8:-2].replace('__main__.', '')  # module type
         np = sum([x.numel() for x in m_.parameters()])  # number params

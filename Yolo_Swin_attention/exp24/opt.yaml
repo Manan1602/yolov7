@@ -1,5 +1,5 @@
-weights: ./Yolo_Swin_attention/exp/weights/last.pt
-cfg: ''
+weights: ''
+cfg: cfg/training/yolov7_custom.yaml
 data: data/custom.yaml
 hyp: data/hyp.scratch.custom.yaml
 epochs: 50
@@ -8,7 +8,7 @@ img_size:
 - 640
 - 640
 rect: false
-resume: true
+resume: false
 nosave: false
 notest: false
 noautoanchor: false
@@ -39,5 +39,5 @@ freeze:
 v5_metric: false
 world_size: 1
 global_rank: -1
-save_dir: Yolo_Swin_attention/exp
+save_dir: Yolo_Swin_attention/exp24
 total_batch_size: 10
