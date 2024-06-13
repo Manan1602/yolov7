@@ -247,17 +247,28 @@ class SwinTransformerBlock3D(nn.Module):
         self.tr = nn.Sequential(*(SwinTransformerLayer3D(c1,num_heads,self.window_size,shift_size = (0,0,0) if i%2==0 else self.shift_size) for i in range(num_layers)))
 
     def reshape_frames(self,x, mode: int = 0):
+        assert x.shape[0]>self.num_frames, 'batch size must be greater than num_frames '
         if mode == 0:
             b,c,h,w = x.shape
             b_new = b//self.num_frames
+            x_new = []
+            for i in range(b-self.num_frames+1):
+                x_new.append(x[i:i+self.num_frames])
+            x = torch.stack(x_new)
+
             # left = b%self.num_frames
             # x1 = x[-self.num_frames:,:,:,:]
             # x = x[:b_new*self.num_frames,:,:,:]
-            x = x.reshape(b_new,self.num_frames,c,h,w)
+            # x = x.reshape(b_new,self.num_frames,c,h,w)
             # x = torch.cat((x,x1))
+            # x = x_new
         elif mode == 1:
             b,t,c,h,w = x.shape
-            x = x.reshape(b*t,c,h,w)
+            x_new = [i for i in x[0]]
+            for i in range(1,x_new.shape[0]):
+                x_new.append(x[i][-1])
+            x = torch.stack(x_new)
+            # x = x.reshape(b*t,c,h,w)
         return x
     
     def save_attention_maps(self,ftmap,mode = 'before_attention'):
